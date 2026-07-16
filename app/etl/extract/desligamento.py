@@ -1,7 +1,7 @@
 import pandas as pd
 
-from database.source.connection import engine_source
-from database.source.queries import QUERY_DESLIGAMENTO
+from app.database.source.connection import engine_source
+from app.database.source.queries import QUERY_DESLIGAMENTO
 
 
 def extract():
@@ -12,3 +12,7 @@ def extract():
             conn
         )
     return df
+
+if __name__=="__main__":
+    df = extract()
+    print(df)
