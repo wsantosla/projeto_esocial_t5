@@ -1,25 +1,38 @@
 QUERY_DESLIGAMENTO ='''
-select distinct
-	fc.matricula as matricula,
-	ps.cpf as cpf,
-	ca.codigo_pmjp as codigo,
-	ca.descricao,
-	to_char(fc.data_afastamento,'dd/MM/yyyy') as afastamento,
-	'True' as COM_REMUNERACAO
+WITH afastamentos_ordenados AS (
+    SELECT 
+        fc.matricula,
+		ps.cpf,
+        fc.data_afastamento,
+		ca.codigo_pmjp,
+        case 
+		when ca.codigo_pmjp in ('12','14') then '6'
+		when ca.codigo_pmjp = '60'  then '10'
+		when ca.codigo_pmjp in ('77','78','84')  then '23'
+		when ca.codigo_pmjp ='79' then '24'
+		when ca.codigo_pmjp in ('70','72') then '38'
+		when ca.codigo_pmjp ='76' then '39'
+		when ca.codigo_pmjp ='19' then '40'
+		end as codigo_esocial,
 		
-	from rubrica_calculada rc
-		join ficha_financeira ff on ff.id_ficha_financeira = rc.id_ficha_financeira
-		join funcionario fc on fc.id_funcionario = ff.id_funcionario
-		join causa_afastamento ca on ca.id_causa_afastamento = fc.id_causa_afastamento
-		join pessoa ps on ps.id_pessoa = fc.id_pessoa
-		join rubrica rb on rb.id_rubrica = rc.id_rubrica
-		join unidade_trabalho ut on ut.id_unidade_trabalho = fc.id_unidade_trabalho
-		join secretaria sc on sc.id_secretaria = ut.id_secretaria
-		join regime rg on rg.id_regime = fc.id_regime
-
-		where
-		fc.data_afastamento > '2024-08-01' and ca.codigo_pmjp not in ('34','91','19')
-		order by 5  
-
-
+        ca.descricao,
+		
+        ROW_NUMBER() OVER (
+            PARTITION BY fc.matricula 
+            ORDER BY fc.data_afastamento DESC
+        ) AS rn
+    FROM funcionario fc
+    JOIN causa_afastamento ca ON ca.id_causa_afastamento = fc.id_causa_afastamento
+    join pessoa ps on ps.id_pessoa = fc.id_pessoa
+	WHERE fc.data_afastamento > '2024-08-01' and ca.codigo_pmjp not in ('34','91')
+)
+SELECT 
+    matricula,
+	cpf,
+    data_afastamento,
+    codigo_pmjp,
+    descricao,
+	codigo_esocial
+FROM afastamentos_ordenados
+WHERE rn = 1;
 '''
