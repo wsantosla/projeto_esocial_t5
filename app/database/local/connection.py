@@ -17,7 +17,7 @@ DB_USER=os.getenv("LOCAL_DB_USER")
 DB_PASSWORD=os.getenv("LOCAL_DB_PASSWORD")
 DATABASE_URL=f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-engine_local = create_engine(DATABASE_URL,pool_pre_ping=True)
+engine_local = create_engine(DATABASE_URL,pool_pre_ping=True,echo=True)
 
 SessionLocal = sessionmaker(
     bind=engine_local,

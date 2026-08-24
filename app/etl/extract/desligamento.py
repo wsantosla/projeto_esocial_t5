@@ -15,4 +15,7 @@ def extract():
 
 if __name__=="__main__":
     df = extract()
-    print(df)
+    print(df.columns.tolist())
+    print()
+    print(df.dtypes)
+    
