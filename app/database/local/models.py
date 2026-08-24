@@ -7,7 +7,7 @@ class Base(DeclarativeBase):
     pass
 
 class StgDesligamento(Base):
-    __tablename__ = "stg_desligamento"
+    __tablename__ = "stg_desligamento2"
 
     id:Mapped[int] = mapped_column(
         primary_key=True,
@@ -16,7 +16,8 @@ class StgDesligamento(Base):
 
     matricula: Mapped[str] = mapped_column(
         String,
-        nullable=False
+        nullable=False,
+        unique=True
     )
 
     cpf: Mapped[str] = mapped_column(
