@@ -56,13 +56,23 @@ class EsocialDesligamento(Base):
         String,
         nullable=False
     )
-    cpf:Mapped[str] = mapped_column(
+    cpf_trab:Mapped[str] = mapped_column(
         String(11),
         nullable=False
     )
+    dt_deslig:Mapped[date]= mapped_column(
+        Date,
+        nullable=False
+    )
+    mtv_deslig: Mapped[str] =mapped_column(
+        String(2),
+        nullable=False
+    )
+    #Controle de Evento
     tipo_evento:Mapped[str] = mapped_column(
         String(20),
-        nullable=False
+        nullable=False,
+        default="S-2299"
     )
     status:Mapped[str] = mapped_column(
         String(30),
@@ -73,6 +83,7 @@ class EsocialDesligamento(Base):
         String(100),
         nullable=True
     )
+    #xml
     xml:Mapped[str|None] =mapped_column(
         Text,
         nullable=True
