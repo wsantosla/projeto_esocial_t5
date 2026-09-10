@@ -68,6 +68,12 @@ class EsocialDesligamento(Base):
         String(2),
         nullable=False
     )
+    ind_pagto_api:Mapped[str] = mapped_column(
+        String(1),
+        nullable=False,
+        default="N"
+    )
+    
     #Controle de Evento
     tipo_evento:Mapped[str] = mapped_column(
         String(20),

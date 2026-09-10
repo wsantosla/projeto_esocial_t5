@@ -12,7 +12,7 @@ afastamentos_ordenados AS (
         fc.data_afastamento,
         ca.codigo_pmjp,
         CASE 
-            WHEN ca.codigo_pmjp IN ('12', '14') THEN '6'
+            WHEN ca.codigo_pmjp IN ('12', '14') THEN '06'
             WHEN ca.codigo_pmjp = '60'          THEN '10'
             WHEN ca.codigo_pmjp IN ('77', '78', '84') THEN '23'
             WHEN ca.codigo_pmjp = '79'          THEN '24'
