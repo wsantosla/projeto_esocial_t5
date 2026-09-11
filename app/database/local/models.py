@@ -1,6 +1,6 @@
 from datetime import date
-
-from sqlalchemy import String, Date,DateTime,Text
+from datetime import datetime
+from sqlalchemy import String, Date,DateTime,Text,Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 class Base(DeclarativeBase):
@@ -110,4 +110,29 @@ class EsocialDesligamento(Base):
     mensagem_erro:Mapped[str|None] = mapped_column(
         Text,
         nullable=True
+    )
+
+class EsocialControleId(Base):
+    __tablename__="esocial_controle_id"
+
+    id:Mapped[int] = mapped_column(
+        primary_key=True,
+        autoincrement=True
+    )
+    tp_insc:Mapped[str] =mapped_column(
+        String(1),
+        nullable=False
+    )
+    nr_insc:Mapped[str] = mapped_column(
+        String(14),
+        nullable=False
+    )
+    data_hora:Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False
+    )
+  
+    sequencial: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False
     )
