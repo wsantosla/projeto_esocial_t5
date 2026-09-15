@@ -4,9 +4,8 @@ from app.config.esocial import ESOCIAL_TP_INSC,ESOCIAL_NR_INSC
 from app.database.local.connection import SessionLocal
 from app.database.local.models import EsocialControleId
 
-def obter_sequencial():
+def obter_sequencial(agora:datetime):
 
-    agora=datetime.now().replace(microsecond=0)
 
     with SessionLocal() as session:
 

@@ -16,7 +16,12 @@ NSMAP = {
 }
 
 
-def gerar_xml_desligamento(evento, id_evento):
+def gerar_xml_desligamento(evento):
+
+    if not evento.id_evento:
+        raise ValueError(
+            "Evento ainda não possui id no eSocial"
+        )
 
     eSocial = etree.Element(
         f"{{{NS}}}eSocial",
@@ -28,7 +33,7 @@ def gerar_xml_desligamento(evento, id_evento):
         f"{{{NS}}}evtDeslig"
     )
 
-    evtDeslig.set("Id", id_evento)
+    evtDeslig.set("Id", evento.id_evento)
 
     # ==========================
     # ideEvento
@@ -128,6 +133,16 @@ def gerar_xml_desligamento(evento, id_evento):
         pretty_print=True
     )
 
+def gerar_e_salvar_xml(evento,session):
+
+    xml = gerar_xml_desligamento(evento)
+    evento.xml = xml.decode("UTF-8")
+
+    session.commit()
+    return xml
+                       
+
+
 if __name__ == "__main__":
 
     from app.database.local.connection import SessionLocal
@@ -140,7 +155,9 @@ if __name__ == "__main__":
         evento = (
             session.query(EsocialDesligamento)
             .filter(
-                EsocialDesligamento.status == "PENDENTE"
+                EsocialDesligamento.status == "PENDENTE",
+                EsocialDesligamento.id_evento.is_not(None),
+                EsocialDesligamento.xml.is_(None)
             )
             .first()
         )
@@ -149,13 +166,10 @@ if __name__ == "__main__":
             print("Nenhum evento pendente encontrado.")
         else:
 
-            id_evento = "ID000000000000000000000000000000000000000"
+            
+            xml = gerar_e_salvar_xml(evento,session)
 
-            xml = gerar_xml_desligamento(
-                evento,
-                id_evento
-            )
-
+            print("Xml salvo com sucesso")
             print(xml.decode("UTF-8"))
 
     finally:
