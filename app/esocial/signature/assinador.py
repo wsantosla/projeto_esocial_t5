@@ -1,6 +1,6 @@
 from lxml import etree
 
-from signxml import XMLSigner, methods
+from signxml import XMLSigner, methods,XMLVerifier
 
 from cryptography.hazmat.primitives.serialization import Encoding
 
@@ -32,7 +32,7 @@ def assinar_xml(xml, chave_privada, certificado):
         pretty_print=True,
     )
 
-def assinar_e_salvar_xml(evento,sesion):
+def assinar_e_salvar_xml(evento,session):
     chave_privada, certificado,_ = carregar_certificado()
 
     xml_assinado = assinar_xml(
@@ -47,6 +47,14 @@ def assinar_e_salvar_xml(evento,sesion):
 
     return xml_assinado
 
+def verificar_assinatura(xml,certificado):
+    raiz = etree.fromstring(xml)
+    XMLVerifier().verify(
+        raiz,
+        x509_cert=certificado,
+    )
+
+    return True
 
 
 if __name__ == "__main__":
@@ -70,30 +78,23 @@ if __name__ == "__main__":
 
         if not evento:
 
-            print("Nenhum evento com XML encontrado.")
+            print("Nenhum evento encontrado.")
 
         else:
 
             print("Matrícula:", evento.matricula)
             print("Id:", evento.id_evento)
-            print("\nCarregando certificado...")
 
-            chave_privada, certificado, adicionais = (
-                carregar_certificado()
-            )
+            _, certificado, _ = carregar_certificado()
 
-            print("Certificado carregado.")
+            print("\nVerificando assinatura...")
 
-            print("\nAssinando XML...")
-
-            xml_assinado = assinar_xml(
+            verificar_assinatura(
                 evento.xml.encode("UTF-8"),
-                chave_privada,
                 certificado,
             )
 
-            print("\nXML assinado com sucesso!\n")
-            print(xml_assinado.decode("UTF-8"))
+            print("\nAssinatura digital válida!")
 
     finally:
 
