@@ -19,3 +19,9 @@ logs/
 # Sistema
 .DS_Store
 Thumbs.db
+
+#Certificado
+
+certificado_esocila.pem
+chave_esocial.pem
+
