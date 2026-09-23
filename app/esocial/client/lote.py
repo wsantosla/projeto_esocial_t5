@@ -1,5 +1,5 @@
 from lxml import etree
-from app.config.esocial import ESOCIAL_TP_INSC,ESOCIAL_NR_INSC
+from app.config.esocial import ESOCIAL_TP_INSC,ESOCIAL_NR_INSC,ESOCIAL_TRANSMISSOR_NR_INSC,ESOCIAL_TRANSMISSOR_TP_INSC
 
 NS_LOTE=(
     "http://www.esocial.gov.br/"
@@ -61,13 +61,13 @@ def gerar_lote_eventos(evento):
     etree.SubElement(
         ideTransmissor,
         f"{{{NS_LOTE}}}tpInsc",
-    ).text=ESOCIAL_TP_INSC
+    ).text=ESOCIAL_TRANSMISSOR_TP_INSC
 
 
     etree.SubElement(
         ideTransmissor,
         f"{{{NS_LOTE}}}nrInsc",
-    ).text = ESOCIAL_NR_INSC
+    ).text =ESOCIAL_TRANSMISSOR_NR_INSC
 
     #Eventos
 
