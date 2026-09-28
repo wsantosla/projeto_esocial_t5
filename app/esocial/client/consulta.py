@@ -4,6 +4,7 @@ from app.config.esocial import (
     URL_CONSULTA,
     SOAP_ACTION_CONSULTA,
 )
+from app.esocial.client.processar_retorno import(processar_retorno_consulta)
 
 from app.esocial.signature.certificado import carregar_certificado
 
@@ -98,8 +99,9 @@ def consultar_lote(protocolo):
 
     print(resposta.text)
 
-    return resposta
+    resultado = processar_retorno_consulta(resposta.text)
 
+    return resultado
 
 if __name__ == "__main__":
 

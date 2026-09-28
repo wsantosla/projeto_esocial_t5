@@ -4,9 +4,6 @@ from dotenv import load_dotenv
 import os
 
 
-engine_local = create_engine
-
-
 
 load_dotenv()
 
