@@ -55,6 +55,10 @@ class EsocialDesligamento(Base):
         primary_key=True,
         autoincrement=True
     )
+    protocolo_envio:Mapped[str] = mapped_column(
+        String(50),
+        nullable=True
+    )
 
     matricula: Mapped[str] = mapped_column(
         String,

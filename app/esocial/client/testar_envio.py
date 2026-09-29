@@ -28,7 +28,7 @@ def testar_envio():
         print("\nSOAP preparado")
 
         #Envia
-        resposta =enviar_soap(soap)
+        resposta =enviar_soap(soap,id_evento=evento.id_evento)
 
         print("\nEnvio concluido.")
     finally:

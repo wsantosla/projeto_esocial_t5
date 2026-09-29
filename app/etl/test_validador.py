@@ -15,7 +15,7 @@ try:
         erros = validar_desligamento(evento)
 
         if erros:
-            print(f'Matricula{evento.matricula}')
+            print(f'Matricula: {evento.matricula}')
 
             for erro in erros:
                 print(f'-{erro}')
