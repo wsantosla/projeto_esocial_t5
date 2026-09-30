@@ -1,4 +1,6 @@
 import requests
+from app.database.local.models import EsocialDesligamento
+from app.database.local.connection import SessionLocal
 
 from app.config.esocial import (
     URL_CONSULTA,
@@ -104,9 +106,11 @@ def consultar_lote(protocolo):
     return resultado
 
 if __name__ == "__main__":
+    session=SessionLocal()
+    registro = session.query(EsocialDesligamento).filter(
+        EsocialDesligamento.protocolo_envio.is_not (None)
+    ).first()
 
-    protocolo = (
-        "1.2.202609.0000000000222042713"
-    )
+    protocolo= registro.protocolo_envio
 
     consultar_lote(protocolo)

@@ -5,15 +5,16 @@ from lxml import etree
 from app.database.local.connection import SessionLocal
 from app.database.local.models import EsocialDesligamento
 
+
 NS = {
-"evt": (
-"http://www.esocial.gov.br/"
-"schema/evt/retornoEvento/v1_3_0"
-)
+    "evt": (
+        "http://www.esocial.gov.br/"
+        "schema/evt/retornoEvento/v1_3_0"
+    )
 }
 
-def processar_retorno_consulta(xml_resposta):
 
+def processar_retorno_consulta(xml_resposta):
 
     if isinstance(xml_resposta, str):
         xml_resposta = xml_resposta.encode("utf-8")
@@ -57,6 +58,10 @@ def processar_retorno_consulta(xml_resposta):
         namespaces=NS
     )
 
+    # ==========================================================
+    # OCORRÊNCIA
+    # ==========================================================
+
     ocorrencia = processamento.find(
         "evt:ocorrencias/evt:ocorrencia",
         namespaces=NS
@@ -83,6 +88,19 @@ def processar_retorno_consulta(xml_resposta):
             namespaces=NS
         )
 
+    # ==========================================================
+    # RECIBO
+    # ==========================================================
+
+    recibo = retorno_evento.findtext(
+        ".//evt:nrRecibo",
+        namespaces=NS
+    )
+
+    # ==========================================================
+    # BANCO
+    # ==========================================================
+
     with SessionLocal() as session:
 
         evento = (
@@ -100,10 +118,22 @@ def processar_retorno_consulta(xml_resposta):
 
         evento.data_retorno = datetime.now()
 
+        # ======================================================
+        # EVENTO PROCESSADO
+        # ======================================================
+
         if cd_resposta == "201":
 
             evento.status = "PROCESSADO"
             evento.mensagem_erro = None
+
+            # Salva o recibo somente se ele existir
+            if recibo:
+                evento.recibo = recibo
+
+        # ======================================================
+        # EVENTO REJEITADO
+        # ======================================================
 
         else:
 
@@ -140,10 +170,18 @@ def processar_retorno_consulta(xml_resposta):
 
         session.commit()
 
+        # ======================================================
+        # RESULTADO
+        # ======================================================
+
         print("\n========== RESULTADO ==========")
+
         print(f"ID evento: {id_evento}")
         print(f"Código resposta: {cd_resposta}")
         print(f"Descrição: {desc_resposta}")
+
+        if recibo:
+            print(f"Recibo: {recibo}")
 
         if codigo:
             print(f"Código ocorrência: {codigo}")
@@ -163,3 +201,4 @@ def processar_retorno_consulta(xml_resposta):
         print("================================")
 
         return evento
+
