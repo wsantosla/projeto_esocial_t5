@@ -1,6 +1,6 @@
 from app.database.local.models import StgDesligamento, EsocialDesligamento
 
-def tranformar_desligamento(session):
+def transformar_desligamento(session):
 
     registros=(
         session.query(StgDesligamento).all()
