@@ -1,114 +1,80 @@
+
 from lxml import etree
+
+
+NS_SIGNATURE = "http://www.w3.org/2000/09/xmldsig#"
 
 
 def validar_lote(xml_lote):
 
     raiz = etree.fromstring(xml_lote)
 
-    # 1. Verifica raiz
     if etree.QName(raiz).localname != "eSocial":
-        raise ValueError(
-            "Raiz do lote não é eSocial."
-        )
+        raise ValueError("Raiz do lote não é eSocial.")
 
-    # 2. Procura envioLoteEventos
-    envio = raiz.find(
-        ".//{*}envioLoteEventos"
-    )
+    envio = raiz.find(".//{*}envioLoteEventos")
 
     if envio is None:
-        raise ValueError(
-            "envioLoteEventos não encontrado."
-        )
+        raise ValueError("envioLoteEventos não encontrado.")
 
-    # 3. Verifica grupo
     grupo = envio.get("grupo")
 
     if grupo != "2":
-        raise ValueError(
-            f"Grupo inválido: {grupo}"
-        )
+        raise ValueError(f"Grupo inválido: {grupo}")
 
-    # 4. Procura eventos
-    eventos = envio.find(
-        "{*}eventos"
-    )
+    eventos = envio.find("{*}eventos")
 
     if eventos is None:
-        raise ValueError(
-            "Grupo eventos não encontrado."
-        )
+        raise ValueError("Grupo eventos não encontrado.")
 
-    lista_eventos = eventos.findall(
-        "{*}evento"
-    )
+    lista_eventos = eventos.findall("{*}evento")
 
     if not lista_eventos:
-        raise ValueError(
-            "Nenhum evento encontrado no lote."
-        )
+        raise ValueError("Nenhum evento encontrado no lote.")
 
-    print(
-        f"Eventos encontrados: {len(lista_eventos)}"
-    )
+    print(f"Eventos encontrados: {len(lista_eventos)}")
 
-    # 5. Verifica cada evento
     for evento in lista_eventos:
 
         id_lote = evento.get("Id")
 
-        print(
-            "Id do evento no lote:",
-            id_lote
-        )
-
-        xml_evento = evento.find(
-            "{*}eSocial"
-        )
+        xml_evento = evento.find("{*}eSocial")
 
         if xml_evento is None:
+            raise ValueError("XML do evento não encontrado.")
+
+        # Identifica o elemento do evento sem fixar S-2299.
+        elementos_evento = [
+            elemento
+            for elemento in xml_evento
+            if etree.QName(elemento).localname.startswith("evt")
+        ]
+
+        if len(elementos_evento) != 1:
             raise ValueError(
-                "XML do evento não encontrado."
+                "Não foi possível identificar um único evento."
             )
 
-        evt_deslig = xml_evento.find(
-            "{*}evtDeslig"
-        )
+        elemento_evento = elementos_evento[0]
+        id_evt = elemento_evento.get("Id")
 
-        if evt_deslig is None:
-            raise ValueError(
-                "evtDeslig não encontrado."
-            )
-
-        id_evt = evt_deslig.get("Id")
-
-        print(
-            "Id do evtDeslig:",
-            id_evt
-        )
+        print("Tipo de evento:", etree.QName(elemento_evento).localname)
+        print("Id do evento:", id_evt)
 
         if id_lote != id_evt:
             raise ValueError(
                 "Os Ids do lote e do evento são diferentes."
             )
 
-        # Verifica assinatura
-       # Verifica assinatura
-      # Verifica assinatura
         assinatura = xml_evento.find(
-            "{http://www.w3.org/2000/09/xmldsig#}Signature"
+            f"{{{NS_SIGNATURE}}}Signature"
         )
 
         if assinatura is None:
-            raise ValueError(
-                "Assinatura digital não encontrada."
-            )
+            raise ValueError("Assinatura digital não encontrada.")
 
-        print(
-            "Assinatura digital: encontrada"
-        )
-    print(
-        "\nLote passou nas verificações estruturais."
-    )
+        print("Assinatura digital: encontrada")
+
+    print("\nLote passou nas verificações estruturais.")
 
     return True

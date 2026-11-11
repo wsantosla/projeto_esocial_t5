@@ -1,93 +1,110 @@
-from lxml import etree
-from app.config.esocial import ESOCIAL_TP_INSC,ESOCIAL_NR_INSC,ESOCIAL_TRANSMISSOR_NR_INSC,ESOCIAL_TRANSMISSOR_TP_INSC
 
-NS_LOTE=(
+from lxml import etree
+
+from app.config.esocial import (
+    ESOCIAL_TP_INSC,
+    ESOCIAL_NR_INSC,
+    ESOCIAL_TRANSMISSOR_NR_INSC,
+    ESOCIAL_TRANSMISSOR_TP_INSC,
+)
+
+NS_LOTE = (
     "http://www.esocial.gov.br/"
     "schema/lote/eventos/envio/v1_1_1"
+)
+
+
+def gerar_lote_eventos(xml, id_evento, grupo):
+
+    if not xml:
+        raise ValueError("Evento não possui XML.")
+
+    if not id_evento:
+        raise ValueError("Evento não possui ID.")
+
+    if grupo not in ("1", "2", "3"):
+        raise ValueError(f"Grupo inválido: {grupo}")
+
+    xml_evento = etree.fromstring(
+        xml.encode("UTF-8") if isinstance(xml, str) else xml
     )
 
-def gerar_lote_eventos(evento):
+    # Identifica o evento dentro do XML.
+    elementos_evento = [
+        elemento
+        for elemento in xml_evento
+        if etree.QName(elemento).localname.startswith("evt")
+    ]
 
-    if not evento.xml:
-        raise ValueError(
-            "Evento não possui XML"
-         )
-    if not evento.id_evento:
-        raise ValueError(
-            "Evento não possui id"
-        )
-    xml_evento =etree.fromstring(
-        evento.xml.encode("UTF-8")
-    )
+    if len(elementos_evento) != 1:
+        raise ValueError("Não foi possível identificar o evento.")
+
+    elemento_evento = elementos_evento[0]
+
+    id_xml = elemento_evento.get("Id")
+
+    if id_xml != id_evento:
+        raise ValueError("ID informado diferente do ID do XML.")
+
+    # Identificação do empregador.
+    if ESOCIAL_TP_INSC == "1":
+        nr_inscricao_empregador = ESOCIAL_NR_INSC[:8]
+    else:
+        nr_inscricao_empregador = ESOCIAL_NR_INSC
 
     eSocial = etree.Element(
         f"{{{NS_LOTE}}}eSocial",
-        nsmap={None:NS_LOTE},
+        nsmap={None: NS_LOTE},
     )
 
-    envioLoteEventos=etree.SubElement(
+    envio = etree.SubElement(
         eSocial,
-        f"{{{NS_LOTE}}}envioLoteEventos"
+        f"{{{NS_LOTE}}}envioLoteEventos",
+        grupo=grupo,
     )
 
-    envioLoteEventos.set(
-        "grupo",
-        "2"
+    ide_empregador = etree.SubElement(
+        envio,
+        f"{{{NS_LOTE}}}ideEmpregador",
     )
 
-    #Empregador
-    idEmpregador = etree.SubElement(
-        envioLoteEventos,
-        f"{{{NS_LOTE}}}ideEmpregador"
-    )
     etree.SubElement(
-            idEmpregador,
-            f"{{{NS_LOTE}}}tpInsc",
-        ).text = ESOCIAL_TP_INSC
+        ide_empregador,
+        f"{{{NS_LOTE}}}tpInsc",
+    ).text = ESOCIAL_TP_INSC
 
-    
     etree.SubElement(
-        idEmpregador,
+        ide_empregador,
         f"{{{NS_LOTE}}}nrInsc",
-    ).text = ESOCIAL_NR_INSC
+    ).text = nr_inscricao_empregador
 
-    #tranmissor
-
-    ideTransmissor = etree.SubElement(
-        envioLoteEventos,
+    ide_transmissor = etree.SubElement(
+        envio,
         f"{{{NS_LOTE}}}ideTransmissor",
     )
 
     etree.SubElement(
-        ideTransmissor,
+        ide_transmissor,
         f"{{{NS_LOTE}}}tpInsc",
-    ).text=ESOCIAL_TRANSMISSOR_TP_INSC
-
+    ).text = ESOCIAL_TRANSMISSOR_TP_INSC
 
     etree.SubElement(
-        ideTransmissor,
+        ide_transmissor,
         f"{{{NS_LOTE}}}nrInsc",
-    ).text =ESOCIAL_TRANSMISSOR_NR_INSC
-
-    #Eventos
+    ).text = ESOCIAL_TRANSMISSOR_NR_INSC
 
     eventos = etree.SubElement(
-        envioLoteEventos,
+        envio,
         f"{{{NS_LOTE}}}eventos",
     )
+
     evento_lote = etree.SubElement(
         eventos,
         f"{{{NS_LOTE}}}evento",
+        Id=id_evento,
     )
 
-    evento_lote.set(
-        "Id",
-        evento.id_evento,
-    )
-     # Coloca o XML S-2299 assinado dentro do lote
-    evento_lote.append(
-        xml_evento
-    )
+    evento_lote.append(xml_evento)
 
     return etree.tostring(
         eSocial,

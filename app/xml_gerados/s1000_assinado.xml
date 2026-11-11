@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<eSocial xmlns="http://www.esocial.gov.br/schema/evt/evtInfoEmpregador/v_S_01_03_00">
+  <evtInfoEmpregador Id="ID1088067210001032026102811533200001">
+    <ideEvento>
+      <tpAmb>2</tpAmb>
+      <procEmi>3</procEmi>
+      <verProc>1.0</verProc>
+    </ideEvento>
+    <ideEmpregador>
+      <tpInsc>1</tpInsc>
+      <nrInsc>08806721</nrInsc>
+    </ideEmpregador>
+    <infoEmpregador>
+      <inclusao>
+        <idePeriodo>
+          <iniValid>2021-07</iniValid>
+        </idePeriodo>
+        <infoCadastro>
+          <classTrib>85</classTrib>
+          <indCoop>0</indCoop>
+          <indConstr>0</indConstr>
+          <indDesFolha>0</indDesFolha>
+          <indOptRegEletron>1</indOptRegEletron>
+          <cnpjEFR>08778326000156</cnpjEFR>
+        </infoCadastro>
+      </inclusao>
+    </infoEmpregador>
+  </evtInfoEmpregador>
+<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/><ds:Reference URI=""><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/><ds:Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>++yLq1yVa/xK2gQUqlccTtbagxQ9p3ppWOt2ujlf48E=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue>l/dPyvmEKnc+IvrA9aIM6lcQ8XS0VFBMsBFK0JRE5OHfESE45nYRPgN48KJioBs5o/J8Supdv2HQN9uBkspFZVLI1eqC3dpRDONtrqH7CKr0vU8r/1QWHHzvYVqMTXXdlrJkHMnayqAZAJCWvlFagxZ5WUhPyAFucwerZP6LMY9lvokJc4fzI9a0Al8Mwsz9JMRDsqR16McK4dCG1XNqb2XHGPwc9dpG+BtPPaPeqoSVFC8+bJ4+gjD/jFcL7E1Me96BKmlc0MWWSKTv+JA7btO1pfh80o8tXC6jsDAPIw+JPYlWa5u3CFsbqvoy/rX9EYKvpVQUdp/nkkvYL3x6Yg==</ds:SignatureValue><ds:KeyInfo><ds:X509Data><ds:X509Certificate>MIIH1jCCBb6gAwIBAgIKN+DKhpKcB68urTANBgkqhkiG9w0BAQsFADBbMQswCQYD
+VQQGEwJCUjEWMBQGA1UECwwNQUMgU3luZ3VsYXJJRDETMBEGA1UECgwKSUNQLUJy
+YXNpbDEfMB0GA1UEAwwWQUMgU3luZ3VsYXJJRCBNdWx0aXBsYTAeFw0yNTExMjcx
+NzU4MzhaFw0yNjExMjcxNzU4MzhaMIHNMQswCQYDVQQGEwJCUjETMBEGA1UECgwK
+SUNQLUJyYXNpbDEiMCAGA1UECwwZQ2VydGlmaWNhZG8gRGlnaXRhbCBQRiBBMTEZ
+MBcGA1UECwwQVmlkZW9jb25mZXJlbmNpYTEXMBUGA1UECwwOMjkwNTY3NDEwMDAx
+NzYxHzAdBgNVBAsMFkFDIFN5bmd1bGFySUQgTXVsdGlwbGExMDAuBgNVBAMMJ0FS
+SU9TVkFMRE8gREUgQU5EUkFERSBBTFZFUzowMDczNzUwMTQwNTCCASIwDQYJKoZI
+hvcNAQEBBQADggEPADCCAQoCggEBAKto+RZObl+tQgb5LzlBVrbqui//Qt01mFad
+PUUbzyC+09+DQXsoCOQ5Dk/mW8QbQPgzNqttMx+jYi6P8AgAoHUVFzHH6PeNcpHc
+63M1APwTxIz9iYqeOdC1MomMNQH6urM/+v/KR1+gPBkDIE0zb/Ev5URrCO8/GwLI
+Ptf1cvpbvoSl3gx30Iqwf0D8fmHTw1Snm0GpRSifbxJPc1Zgtv9J5BtjdE1tmOxJ
+mZXHYB0219F6ifbXy6RZ98weMWSbr7+RNeG6GAa77S+4UzYkgNlTDLVHCg8Eghfv
+YKQhLkGfMslbDZ5OlCusPggFb9oUG0zPoglU3UJb4we9mpxag8cCAwEAAaOCAycw
+ggMjMA4GA1UdDwEB/wQEAwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDBAYIKwYBBQUH
+AwIwCQYDVR0TBAIwADAfBgNVHSMEGDAWgBST4f9+HeX15E3hOWKLIWmV5q9yFjAd
+BgNVHQ4EFgQUTGfrVrKEkywqLFHSVVi2YwUl6sUwfwYIKwYBBQUHAQEEczBxMG8G
+CCsGAQUFBzAChmNodHRwOi8vc3luZ3VsYXJpZC5jb20uYnIvcmVwb3NpdG9yaW8v
+YWMtc3luZ3VsYXJpZC1tdWx0aXBsYS9jZXJ0aWZpY2Fkb3MvYWMtc3luZ3VsYXJp
+ZC1tdWx0aXBsYS5wN2IwgYIGA1UdIAR7MHkwdwYHYEwBAgGBBTBsMGoGCCsGAQUF
+BwIBFl5odHRwOi8vc3luZ3VsYXJpZC5jb20uYnIvcmVwb3NpdG9yaW8vYWMtc3lu
+Z3VsYXJpZC1tdWx0aXBsYS9kcGMvZHBjLWFjLXN5bmd1bGFySUQtbXVsdGlwbGEu
+cGRmMIG7BgNVHREEgbMwgbCgQgYFYEwBAwGgOQQ3MTYxMjE5NzcwMDczNzUwMTQw
+NTAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMKA0BgVgTAEDBaAr
+BCkwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMKAXBgVg
+TAEDBqAOBAwwMDAwMDAwMDAwMDCBG2FyaW9zdmFsZG9hbHZlc0Bob3RtYWlsLmNv
+bTCB4gYDVR0fBIHaMIHXMGSgYqBghl5odHRwOi8vc3luZ3VsYXJpZC5jb20uYnIv
+cmVwb3NpdG9yaW8vYWMtc3luZ3VsYXJpZC1tdWx0aXBsYS9sY3IvbGNyLWFjLXN5
+bmd1bGFyaWQtbXVsdGlwbGEuY3JsMG+gbaBrhmlodHRwOi8vaWNwLWJyYXNpbC5z
+eW5ndWxhcmlkLmNvbS5ici9yZXBvc2l0b3Jpby9hYy1zeW5ndWxhcmlkLW11bHRp
+cGxhL2xjci9sY3ItYWMtc3luZ3VsYXJpZC1tdWx0aXBsYS5jcmwwDQYJKoZIhvcN
+AQELBQADggIBAIxItyBd9v7GCeXhrKqNEV1U58aCkqJIKZl5QGNT3by8B17pNfos
+/GdGi/iUrjy1x+rexgTtWqgs1TvnpS1uxFfmPuvNHaWHh9cjb4zwW7V6E+3IRkw1
+EdEYG25NWCEFoq5StF9ilcdoMSvgRt7DxKjCuMs6NWw+sLH0pg2cjivCNxIoJukI
+RX3/GILNk9kXqFP+7ZX8VYxp8OxUzrK1ecXlQOcvLbHopQBKkes2HIsF3Lb/Rwkv
+NhbgP1cu6K3gVEbmxiPVx9/YofFwmBXmKggNftfkmbVn8nNVx9RJ7knybkgtmrdM
+m7lyEyFNQY7IArb0sLyrrE8E5H9UWIAQ/4CM2Y2GR7qrenPL5y4DtWSNSyksGClp
++hOo5qp/MRbv6kjVVTlsRfWYdihkRFFLdsLkXo7e25QH943tFBeEZU5Ff9hkhy62
+oh5bF/1ZkrmfrNSHbnWzFrM+Sb/mt4207G/XO0s2D2lgMhv7TW56O1ghH0I40LGz
+OZIAXqzSFM0acD8Hpf9bVBNgAbXCJPlIzu+Dqbietly86SNJfGdr+cyfRJpSEz4D
+2lvRibOqqj427r24Ry0fLKmCnjRpfDmm6z7jITT//tI5toNd486vDE2KqKMKkUUh
+HOSuwGiIbjzVt8sHJlUPGEDnd+LL3VFrBBL66YDsxRmpJXXfbUNodxC5
+</ds:X509Certificate></ds:X509Data></ds:KeyInfo></ds:Signature></eSocial>
