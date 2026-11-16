@@ -1,6 +1,15 @@
+
 from lxml import etree
 
 from app.esocial.xml.id_evento import gerar_id_evento
+
+from app.config.esocial import (
+    ESOCIAL_TP_AMB,
+    ESOCIAL_PROC_EMI,
+    ESOCIAL_VER_PROC,
+    ESOCIAL_TP_INSC,
+    ESOCIAL_NR_INSC,
+)
 
 NS = (
     "http://www.esocial.gov.br/schema/"
@@ -11,6 +20,27 @@ NS = (
 def gerar_xml_s1000():
 
     id_evento = gerar_id_evento()
+
+    # Validação das configurações obrigatórias
+    configuracoes = {
+        "ESOCIAL_TP_AMB": ESOCIAL_TP_AMB,
+        "ESOCIAL_PROC_EMI": ESOCIAL_PROC_EMI,
+        "ESOCIAL_VER_PROC": ESOCIAL_VER_PROC,
+        "ESOCIAL_TP_INSC": ESOCIAL_TP_INSC,
+        "ESOCIAL_NR_INSC": ESOCIAL_NR_INSC,
+    }
+
+    for nome, valor in configuracoes.items():
+        if not valor:
+            raise ValueError(
+                f"A configuração {nome} não foi definida no .env."
+            )
+
+    # Para CNPJ, o S-1000 utiliza os 8 primeiros dígitos.
+    if ESOCIAL_TP_INSC == "1":
+        nr_inscricao = ESOCIAL_NR_INSC[:8]
+    else:
+        nr_inscricao = ESOCIAL_NR_INSC
 
     root = etree.Element(
         f"{{{NS}}}eSocial",
@@ -31,17 +61,17 @@ def gerar_xml_s1000():
     etree.SubElement(
         ide_evento,
         f"{{{NS}}}tpAmb"
-    ).text = "2"
+    ).text = ESOCIAL_TP_AMB
 
     etree.SubElement(
         ide_evento,
         f"{{{NS}}}procEmi"
-    ).text = "3"
+    ).text = ESOCIAL_PROC_EMI
 
     etree.SubElement(
         ide_evento,
         f"{{{NS}}}verProc"
-    ).text = "1.0"
+    ).text = ESOCIAL_VER_PROC
 
     ide_empregador = etree.SubElement(
         evento,
@@ -51,12 +81,12 @@ def gerar_xml_s1000():
     etree.SubElement(
         ide_empregador,
         f"{{{NS}}}tpInsc"
-    ).text = "1"
+    ).text = ESOCIAL_TP_INSC
 
     etree.SubElement(
         ide_empregador,
         f"{{{NS}}}nrInsc"
-    ).text = "08806721"
+    ).text = nr_inscricao
 
     info_empregador = etree.SubElement(
         evento,

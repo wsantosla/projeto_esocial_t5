@@ -27,12 +27,16 @@ if st.button(
         with st.spinner("Extraindo dados do banco source..."):
 
             df = extract()
+            load(df)
+        
 
                
         with st.spinner("Transformando desligamentos..."):
 
             with SessionLocal() as session:
                 eventos = transformar_desligamento(session)
+                session.add_all(eventos)
+                session.commit()
                 qtd_eventos = session.query(EsocialDesligamento).count()
                 st.info(
                     f'{qtd_eventos} Carregado prontos para envio'
@@ -48,7 +52,7 @@ if st.button(
 
         st.error(
             f"Erro durante a carga: {e}"
-        )
+        )    
 st.subheader("Exportação")
 
 with SessionLocal() as session:

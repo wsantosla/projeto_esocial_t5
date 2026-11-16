@@ -1,73 +1,90 @@
+
 from pathlib import Path
 from lxml import etree
 
-def validar_xml_desligamento(xml):
+
+def carregar_schema_desligamento():
 
     RAIZ_PROJETO = Path(__file__).resolve().parents[2]
 
     caminho_xsd = (
-    RAIZ_PROJETO
-    / "esquemas_xsd"
-    / "v_S_01_03_00"
-    / "evtDeslig.xsd"
+        RAIZ_PROJETO
+        / "esquemas_xsd"
+        / "v_S_01_03_00"
+        / "evtDeslig.xsd"
     )
+
     if not caminho_xsd.exists():
         raise FileNotFoundError(
-            f"XSD não encontrado:{caminho_xsd}"
+            f"XSD não encontrado: {caminho_xsd}"
         )
-    schema_doc = etree.parse(caminho_xsd)
-    schema = etree.XMLSchema(schema_doc)
+
+    schema_doc = etree.parse(str(caminho_xsd))
+
+    return etree.XMLSchema(schema_doc)
+
+
+def validar_xml_desligamento(xml, schema=None):
+
+    if schema is None:
+        schema = carregar_schema_desligamento()
+
     xml_doc = etree.fromstring(xml)
+
     schema.assertValid(xml_doc)
 
     return True
 
-if __name__ == "__main__":
 
-    from app.database.local.connection import SessionLocal
-    from app.database.local.models import EsocialDesligamento
+from app.database.local.models import EsocialDesligamento
 
-    session = SessionLocal()
 
-    try:
+def validar_todos_eventos(session):
 
-        evento = (
-            session.query(EsocialDesligamento)
-            .filter(
-                EsocialDesligamento.xml.is_not(None)
-            )
-            .first()
+    schema = carregar_schema_desligamento()
+
+    eventos = (
+        session.query(EsocialDesligamento)
+        .filter(
+            EsocialDesligamento.xml.is_not(None)
         )
+        .all()
+    )
 
-        if not evento:
+    validos = 0
+    erros = []
 
-            print("Nenhum XML encontrado no banco.")
+    for evento in eventos:
 
-        else:
+        try:
 
-            print("Matrícula:", evento.matricula)
-            print("Id:", evento.id_evento)
-            print("\nValidando XML...\n")
+            # Só aceita XML que tenha assinatura
+            raiz = etree.fromstring(
+                evento.xml.encode("UTF-8")
+            )
 
-            try:
+            assinaturas = raiz.xpath(
+                ".//*[local-name()='Signature']"
+            )
 
-                validar_xml_desligamento(
-                    evento.xml.encode("UTF-8")
+            if len(assinaturas) != 1:
+                raise ValueError(
+                    "XML não possui exatamente uma assinatura."
                 )
 
-                print("XML válido segundo o XSD!")
+            validar_xml_desligamento(
+                evento.xml.encode("UTF-8"),
+                schema
+            )
 
-            except etree.DocumentInvalid as erro:
+            validos += 1
 
-                print("XML inválido!")
-                print("\nErros encontrados:")
+        except Exception as e:
 
-                for erro_xsd in erro.error_log:
-                    print(
-                        f"Linha {erro_xsd.line}: "
-                        f"{erro_xsd.message}"
-                    )
+            erros.append({
+                "matricula": evento.matricula,
+                "id_evento": evento.id_evento,
+                "erro": str(e)
+            })
 
-    finally:
-
-        session.close()
+    return validos, erros

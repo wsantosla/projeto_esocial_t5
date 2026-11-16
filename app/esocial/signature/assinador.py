@@ -3,6 +3,7 @@ from lxml import etree
 from signxml import XMLSigner, XMLVerifier, methods
 from cryptography.hazmat.primitives.serialization import Encoding
 from app.esocial.signature.certificado import carregar_certificado
+from app.database.local.models import EsocialDesligamento
 
 
 
@@ -53,10 +54,10 @@ def assinar_xml(xml, chave_privada, certificado):
 
 
 
+def assinar_e_salvar_xml(evento, session, chave_privada, certificado):
 
-def assinar_e_salvar_xml(evento, session):
-
-    chave_privada, certificado, _ = carregar_certificado()
+    if not evento.xml:
+        raise ValueError("Evento não possui XML para assinatura.")
 
     xml_assinado = assinar_xml(
         evento.xml.encode("UTF-8"),
@@ -64,9 +65,13 @@ def assinar_e_salvar_xml(evento, session):
         certificado,
     )
 
-    evento.xml = xml_assinado.decode("UTF-8")
+    # Confirma a assinatura antes de salvar
+    verificar_assinatura(
+        xml_assinado,
+        certificado
+    )
 
-    session.commit()
+    evento.xml = xml_assinado.decode("UTF-8")
 
     return xml_assinado
 
@@ -97,7 +102,67 @@ def verificar_assinatura(xml, certificado):
     )
 
     return True
+def assinar_todos_eventos(session):
 
+    # Carrega o certificado apenas uma vez
+    chave_privada, certificado, _ = carregar_certificado()
+
+    eventos = (
+        session.query(EsocialDesligamento)
+        .filter(
+            EsocialDesligamento.xml.is_not(None),
+            EsocialDesligamento.id_evento.is_not(None),
+        )
+        .all()
+    )
+
+    assinados = 0
+    ignorados = 0
+    erros = []
+
+    for evento in eventos:
+
+        try:
+
+            raiz = etree.fromstring(
+                evento.xml.encode("UTF-8")
+            )
+
+            # Não assina novamente um XML já assinado
+            assinatura_existente = raiz.xpath(
+                ".//*[local-name()='Signature']"
+            )
+
+            if assinatura_existente:
+                ignorados += 1
+                continue
+
+            assinar_e_salvar_xml(
+                evento,
+                session,
+                chave_privada,
+                certificado
+            )
+
+            assinados += 1
+
+            # Salva em blocos de 100 eventos
+            if assinados % 100 == 0:
+                session.commit()
+
+        except Exception as e:
+
+            session.rollback()
+
+            erros.append({
+                "matricula": evento.matricula,
+                "id_evento": evento.id_evento,
+                "erro": str(e)
+            })
+
+    session.commit()
+
+    return assinados, ignorados, erros
 
 if __name__ == "__main__":
 
