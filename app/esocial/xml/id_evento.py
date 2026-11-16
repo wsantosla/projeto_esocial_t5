@@ -33,22 +33,34 @@ def atribuir_id_evento(evento):
     
 
 
+
 if __name__ == "__main__":
+
+    from sqlalchemy import select
 
     from app.database.local.connection import SessionLocal
     from app.database.local.models import EsocialDesligamento
 
+    with SessionLocal() as session:
 
-    with SessionLocal() as Session:
-        evento = Session.query(
-            EsocialDesligamento
-        ).filter(EsocialDesligamento.id_evento.is_(None)).first()
+        eventos = session.scalars(
+            select(EsocialDesligamento).where(
+                EsocialDesligamento.tipo_evento == "S-2299",
+                EsocialDesligamento.status == "PENDENTE",
+                EsocialDesligamento.id_evento.is_(None)
+            )
+        ).all()
 
-        if evento:
-            gerar_id_evento = atribuir_id_evento(evento)
-            Session.commit()
+        print(f"Eventos encontrados: {len(eventos)}")
 
-            print("matricula:", evento.matricula)
-            print("id_esocial:",evento.id_evento)
-            print("tamanho:",len(evento.id_evento))
-            
+        for evento in eventos:
+            id_evento = atribuir_id_evento(evento)
+
+            print(
+                f"Matrícula: {evento.matricula} | "
+                f"ID: {id_evento}"
+            )
+
+        session.commit()
+
+        print("\nIDs atribuídos e salvos com sucesso!")

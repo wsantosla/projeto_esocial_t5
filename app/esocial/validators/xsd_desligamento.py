@@ -39,6 +39,7 @@ def validar_xml_desligamento(xml, schema=None):
 from app.database.local.models import EsocialDesligamento
 
 
+
 def validar_todos_eventos(session):
 
     schema = carregar_schema_desligamento()
@@ -46,9 +47,12 @@ def validar_todos_eventos(session):
     eventos = (
         session.query(EsocialDesligamento)
         .filter(
-            EsocialDesligamento.xml.is_not(None)
+            EsocialDesligamento.xml.is_not(None),
+            EsocialDesligamento.xml != "",
+            EsocialDesligamento.id_evento.is_not(None)
         )
-        .all()
+        .order_by(EsocialDesligamento.id)
+        .yield_per(100)
     )
 
     validos = 0
@@ -58,22 +62,10 @@ def validar_todos_eventos(session):
 
         try:
 
-            # Só aceita XML que tenha assinatura
-            raiz = etree.fromstring(
-                evento.xml.encode("UTF-8")
-            )
-
-            assinaturas = raiz.xpath(
-                ".//*[local-name()='Signature']"
-            )
-
-            if len(assinaturas) != 1:
-                raise ValueError(
-                    "XML não possui exatamente uma assinatura."
-                )
+            xml_bytes = evento.xml.encode("UTF-8")
 
             validar_xml_desligamento(
-                evento.xml.encode("UTF-8"),
+                xml_bytes,
                 schema
             )
 
@@ -82,9 +74,41 @@ def validar_todos_eventos(session):
         except Exception as e:
 
             erros.append({
+                "id": evento.id,
                 "matricula": evento.matricula,
                 "id_evento": evento.id_evento,
                 "erro": str(e)
             })
 
     return validos, erros
+
+
+if __name__ == "__main__":
+
+    from app.database.local.connection import SessionLocal
+
+    session = SessionLocal()
+
+    try:
+
+        validos, erros = validar_todos_eventos(session)
+
+        print("\n===== RESULTADO DA VALIDAÇÃO XSD =====")
+
+        print(f"XMLs válidos: {validos}")
+        print(f"XMLs inválidos: {len(erros)}")
+
+        if erros:
+
+            print("\n===== ERROS ENCONTRADOS =====")
+
+            for erro in erros[:20]:
+
+                print(
+                    f"ID: {erro['id']} | "
+                    f"Matrícula: {erro['matricula']} | "
+                    f"Erro: {erro['erro']}"
+                )
+
+    finally:
+        session.close()

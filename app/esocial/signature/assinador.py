@@ -102,112 +102,139 @@ def verificar_assinatura(xml, certificado):
     )
 
     return True
-def assinar_todos_eventos(session):
+
+def assinar_todos_eventos(session, tamanho_lote=100):
 
     # Carrega o certificado apenas uma vez
     chave_privada, certificado, _ = carregar_certificado()
 
-    eventos = (
-        session.query(EsocialDesligamento)
-        .filter(
-            EsocialDesligamento.xml.is_not(None),
-            EsocialDesligamento.id_evento.is_not(None),
-        )
-        .all()
-    )
+    ultimo_id = 0
 
     assinados = 0
     ignorados = 0
     erros = []
 
-    for evento in eventos:
+    while True:
 
+        eventos = (
+            session.query(EsocialDesligamento)
+            .filter(
+                EsocialDesligamento.id > ultimo_id,
+                EsocialDesligamento.xml.is_not(None),
+                EsocialDesligamento.xml != "",
+                EsocialDesligamento.id_evento.is_not(None)
+            )
+            .order_by(EsocialDesligamento.id)
+            .limit(tamanho_lote)
+            .all()
+        )
+
+        if not eventos:
+            break
+
+        for evento in eventos:
+
+            ultimo_id = evento.id
+
+            try:
+
+                raiz = etree.fromstring(
+                    evento.xml.encode("UTF-8")
+                )
+
+                # Verifica se já existe assinatura
+                assinatura_existente = raiz.xpath(
+                    ".//*[local-name()='Signature']"
+                )
+
+                if assinatura_existente:
+                    ignorados += 1
+                    continue
+
+                # Assina e verifica antes de salvar
+                assinar_e_salvar_xml(
+                    evento,
+                    session,
+                    chave_privada,
+                    certificado
+                )
+
+                assinados += 1
+
+            except Exception as e:
+
+                erros.append({
+                    "id": evento.id,
+                    "matricula": evento.matricula,
+                    "id_evento": evento.id_evento,
+                    "erro": str(e)
+                })
+
+                print(
+                    f"Erro ao assinar evento {evento.id}: {e}"
+                )
+
+        # Confirma cada lote de registros
         try:
 
-            raiz = etree.fromstring(
-                evento.xml.encode("UTF-8")
+            session.commit()
+
+        except Exception:
+
+            session.rollback()
+            raise
+
+        print(
+            f"Processamento até o ID {ultimo_id} | "
+            f"Assinados: {assinados} | "
+            f"Ignorados: {ignorados} | "
+            f"Erros: {len(erros)}"
+        )
+
+    return assinados, ignorados, erros
+
+
+
+if __name__ == "__main__":
+
+    from app.database.local.connection import SessionLocal
+
+    session = SessionLocal()
+
+    try:
+
+        # Carrega o certificado
+        chave_privada, certificado, _ = carregar_certificado()
+
+        evento = (
+            session.query(EsocialDesligamento)
+            .filter(
+                EsocialDesligamento.xml.is_not(None),
+                EsocialDesligamento.id_evento.is_not(None)
             )
+            .order_by(EsocialDesligamento.id)
+            .first()
+        )
 
-            # Não assina novamente um XML já assinado
-            assinatura_existente = raiz.xpath(
-                ".//*[local-name()='Signature']"
-            )
+        if not evento:
 
-            if assinatura_existente:
-                ignorados += 1
-                continue
+            print("Nenhum evento encontrado.")
 
-            assinar_e_salvar_xml(
+        else:
+
+            print("Matrícula:", evento.matricula)
+            print("ID:", evento.id_evento)
+
+            xml_assinado = assinar_e_salvar_xml(
                 evento,
                 session,
                 chave_privada,
                 certificado
             )
 
-            assinados += 1
+            session.commit()
 
-            # Salva em blocos de 100 eventos
-            if assinados % 100 == 0:
-                session.commit()
-
-        except Exception as e:
-
-            session.rollback()
-
-            erros.append({
-                "matricula": evento.matricula,
-                "id_evento": evento.id_evento,
-                "erro": str(e)
-            })
-
-    session.commit()
-
-    return assinados, ignorados, erros
-
-if __name__ == "__main__":
-
-    from app.database.local.connection import SessionLocal
-    from app.database.local.models import EsocialDesligamento
-    from app.esocial.signature.certificado import carregar_certificado
-
-    session = SessionLocal()
-
-    try:
-
-        evento = (
-            session.query(EsocialDesligamento)
-            .filter(
-                EsocialDesligamento.xml.is_not(None),
-                EsocialDesligamento.id_evento.is_not(None),
-            )
-            .first()
-        )
-
-        if not evento:
-            print("Nenhum evento encontrado.")
-
-        else:
-
-            print("Matrícula:", evento.matricula)
-            print("Id:", evento.id_evento)
-
-            print("\n=== GERANDO NOVA ASSINATURA ===")
-
-            # IMPORTANTE:
-            # gera novamente a assinatura usando a função atualizada
-            xml_assinado = assinar_e_salvar_xml(
-                evento,
-                session
-            )
-
-            print("\n=== ASSINATURA GERADA ===\n")
-
-            print(xml_assinado.decode("UTF-8"))
-
-            # verifica a nova assinatura
-            _, certificado, _ = carregar_certificado()
-
-            print("\n=== VERIFICANDO ASSINATURA ===")
+            print("\nAssinatura gerada e salva!")
 
             verificar_assinatura(
                 xml_assinado,
@@ -216,5 +243,11 @@ if __name__ == "__main__":
 
             print("\nAssinatura digital válida!")
 
+    except Exception:
+
+        session.rollback()
+        raise
+
     finally:
+
         session.close()

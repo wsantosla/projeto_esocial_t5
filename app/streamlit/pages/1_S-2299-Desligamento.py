@@ -5,6 +5,10 @@ from app.database.local.models import EsocialDesligamento
 from app.etl.extract.desligamento import extract
 from app.etl.load.desligamento import load
 from app.etl.transform.desligamento import transformar_desligamento
+from app.services.processamento_desligamento import (
+    processar_eventos,
+)
+
 
 st.set_page_config(
     page_title="eSocial",
@@ -100,3 +104,56 @@ st.download_button(
     file_name="esocial_desligamento.csv",
     mime="text/csv"
 )
+
+st.divider()
+
+st.subheader("⚙️ Processamento dos eventos")
+
+if st.button(
+    "🚀 Preparar, assinar e validar eventos",
+    type="primary"
+):
+
+    try:
+
+        with SessionLocal() as session:
+
+            with st.spinner(
+                "Processando eventos do eSocial..."
+            ):
+
+                resultado = processar_eventos(session)
+
+        st.success("Processamento concluído!")
+
+        col1, col2, col3 = st.columns(3)
+
+        col1.metric(
+            "Preparados",
+            resultado["preparados"]
+        )
+
+        col2.metric(
+            "Assinados",
+            resultado["assinados"]
+        )
+
+        col3.metric(
+            "Validados",
+            resultado["validos"]
+        )
+
+        if resultado["erros"]:
+
+            st.warning(
+                f'{len(resultado["erros"])} eventos apresentaram erros.'
+            )
+
+            st.dataframe(
+                pd.DataFrame(resultado["erros"]),
+                use_container_width=True
+            )
+
+    except Exception as e:
+
+        st.error(f"Erro no processamento: {e}")

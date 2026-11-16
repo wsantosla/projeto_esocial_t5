@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 from sqlalchemy import String, Date, DateTime, Text, Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-
+from sqlalchemy import UniqueConstraint
 
 class Base(DeclarativeBase):
     pass
@@ -131,8 +131,18 @@ class EsocialDesligamento(Base):
     )
 
 
+
 class EsocialControleId(Base):
     __tablename__ = "esocial_controle_id"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "tp_insc",
+            "nr_insc",
+            "data_hora",
+            name="uq_esocial_controle_id"
+        ),
+    )
 
     id: Mapped[int] = mapped_column(
         primary_key=True,
@@ -158,6 +168,7 @@ class EsocialControleId(Base):
         Integer,
         nullable=False
     )
+
 
 class EsocialInfoEmpregador(Base):
     __tablename__ = "esocial_info_empregador"

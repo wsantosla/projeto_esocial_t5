@@ -133,12 +133,12 @@ def gerar_xml_desligamento(evento):
         pretty_print=True
     )
 
-def gerar_e_salvar_xml(evento,session):
+def gerar_e_salvar_xml(evento, session):
 
     xml = gerar_xml_desligamento(evento)
+
     evento.xml = xml.decode("UTF-8")
 
-    session.commit()
     return xml
                        
 
@@ -167,10 +167,11 @@ if __name__ == "__main__":
         else:
 
             
-            xml = gerar_e_salvar_xml(evento,session)
+            xml = gerar_e_salvar_xml(evento, session)
 
-            print("Xml salvo com sucesso")
+            session.commit()
+
+            print("XML salvo com sucesso")
             print(xml.decode("UTF-8"))
-
     finally:
         session.close()
