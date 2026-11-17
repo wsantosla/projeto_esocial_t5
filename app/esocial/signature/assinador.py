@@ -251,3 +251,43 @@ if __name__ == "__main__":
     finally:
 
         session.close()
+
+if __name__ == "__main__":
+
+    from app.database.local.connection import SessionLocal
+    from app.esocial.validators.xsd_desligamento import (
+        carregar_schema_desligamento,
+        validar_xml_desligamento
+    )
+
+    session = SessionLocal()
+
+    try:
+        evento = (
+            session.query(EsocialDesligamento)
+            .filter(
+                EsocialDesligamento.xml.like("%<ds:Signature%")
+            )
+            .order_by(EsocialDesligamento.id)
+            .first()
+        )
+
+        if not evento:
+            print("Nenhum XML assinado encontrado.")
+        else:
+            _, certificado, _ = carregar_certificado()
+
+            xml_bytes = evento.xml.encode("UTF-8")
+
+            # Verificação criptográfica
+            verificar_assinatura(xml_bytes, certificado)
+            print("Assinatura digital válida!")
+
+            # Validação do XSD
+            schema = carregar_schema_desligamento()
+
+            validar_xml_desligamento(xml_bytes, schema)
+            print("XML válido no esquema XSD!")
+
+    finally:
+        session.close()
